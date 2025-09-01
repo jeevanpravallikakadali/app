@@ -557,6 +557,178 @@ const Dashboard = () => {
   );
 };
 
+// Document Upload Section Component
+const DocumentUploadSection = ({ family, onDocumentUploaded }) => {
+  const [uploading, setUploading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+
+  const documentTypes = [
+    { value: 'aadhaar_card', label: 'Aadhaar Card', required: true },
+    { value: 'income_certificate', label: 'Income Certificate', required: true },
+    { value: 'caste_certificate', label: 'Caste Certificate', required: true },
+    { value: 'bank_passbook', label: 'Bank Passbook', required: false },
+    { value: 'land_records', label: 'Land Records', required: false },
+    { value: 'ration_card', label: 'Ration Card', required: false },
+    { value: 'disability_certificate', label: 'Disability Certificate', required: false },
+    { value: 'voter_id', label: 'Voter ID', required: false },
+    { value: 'other', label: 'Other Document', required: false }
+  ];
+
+  const handleFileUpload = async (event, documentType) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadStatus('File size must be less than 10MB');
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'text/plain'];
+    if (!allowedTypes.includes(file.type)) {
+      setUploadStatus('Only JPEG, PNG, PDF, and TXT files are allowed');
+      return;
+    }
+
+    setUploading(true);
+    setUploadStatus('');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('document_type', documentType);
+
+    try {
+      const response = await axios.post(`${API}/upload-document`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setUploadStatus(`✅ ${documentTypes.find(dt => dt.value === documentType)?.label} uploaded successfully`);
+      onDocumentUploaded();
+      
+      // Clear the file input
+      event.target.value = '';
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadStatus(''), 3000);
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadStatus(`❌ Upload failed: ${error.response?.data?.detail || 'Unknown error'}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-2">📄 Upload Documents</h3>
+        <p className="text-gray-600 text-sm">
+          Upload your family documents to support scheme applications. Accepted formats: JPEG, PNG, PDF, TXT (max 10MB each)
+        </p>
+      </div>
+
+      {/* Upload Status */}
+      {uploadStatus && (
+        <div className={`mb-4 p-3 rounded-lg text-sm ${
+          uploadStatus.includes('✅') 
+            ? 'bg-green-50 text-green-700 border border-green-200'
+            : 'bg-red-50 text-red-700 border border-red-200'
+        }`}>
+          {uploadStatus}
+        </div>
+      )}
+
+      {/* Current Documents */}
+      {family.documents && family.documents.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-semibold text-gray-800 mb-3">📋 Uploaded Documents ({family.documents.length})</h4>
+          <div className="grid md:grid-cols-2 gap-3">
+            {family.documents.map((doc, index) => (
+              <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-600">📎</span>
+                  <span className="text-sm text-gray-700 truncate">{doc}</span>
+                </div>
+                <a
+                  href={`${BACKEND_URL}/uploads/${doc}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  View
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Document Upload Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {documentTypes.map((docType) => (
+          <div key={docType.value} className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium text-gray-800 text-sm">{docType.label}</h4>
+              {docType.required && (
+                <div className="flex items-center space-x-1">
+                  <span className="text-red-500 text-xs">*</span>
+                  <span className="text-xs text-red-600">Required</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="relative">
+              <input
+                type="file"
+                id={`upload-${docType.value}`}
+                className="hidden"
+                accept=".pdf,.jpg,.jpeg,.png,.txt"
+                onChange={(e) => handleFileUpload(e, docType.value)}
+                disabled={uploading}
+              />
+              <label
+                htmlFor={`upload-${docType.value}`}
+                className={`flex flex-col items-center justify-center w-full h-20 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                  uploading 
+                    ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                    : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                }`}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-2xl mb-1">📤</span>
+                  <span className="text-xs text-gray-600 text-center">
+                    {uploading ? 'Uploading...' : 'Click to upload'}
+                  </span>
+                </div>
+              </label>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              PDF, JPG, PNG, TXT (max 10MB)
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Upload Instructions */}
+      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 className="font-medium text-blue-900 mb-2">📖 Document Guidelines:</h4>
+        <ul className="text-sm text-blue-800 space-y-1">
+          <li>• <strong>Aadhaar Card:</strong> Clear photo of front and back</li>
+          <li>• <strong>Income Certificate:</strong> Latest government-issued certificate</li>
+          <li>• <strong>Caste Certificate:</strong> Valid caste certificate from competent authority</li>
+          <li>• <strong>Bank Passbook:</strong> First page with account details</li>
+          <li>• <strong>Land Records:</strong> Land ownership documents (for farmers)</li>
+          <li>• <strong>Ration Card:</strong> BPL/APL ration card</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 // Family Registration Form Component
 const FamilyRegistrationForm = ({ onComplete }) => {
   const [formData, setFormData] = useState({

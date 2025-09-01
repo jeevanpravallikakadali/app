@@ -439,7 +439,7 @@ async def apply_to_scheme(scheme_name: str, current_user: User = Depends(get_cur
 @api_router.get("/notifications")
 async def get_notifications(current_user: User = Depends(get_current_user)):
     notifications = await db.notifications.find(
-        {"user_id": current_user.id}
+        {"user_id": current_user.id}, {"_id": 0}
     ).sort("created_at", -1).to_list(length=50)
     return {"notifications": notifications}
 

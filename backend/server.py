@@ -370,7 +370,7 @@ async def check_eligibility(current_user: User = Depends(get_current_user)):
         existing_application = await db.scheme_applications.find_one({
             "family_id": family['id'],
             "scheme_name": scheme_name
-        })
+        }, {"_id": 0})
         
         if not existing_application:
             # Run AI eligibility check

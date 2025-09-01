@@ -408,52 +408,57 @@ const Dashboard = () => {
             {!family ? (
               <FamilyRegistrationForm onComplete={fetchFamily} />
             ) : (
-              <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Family Profile</h2>
-                  {!schemes.length && (
-                    <button
-                      onClick={checkEligibility}
-                      disabled={loading}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
-                    >
-                      {loading ? 'Checking...' : 'Check Eligibility'}
-                    </button>
-                  )}
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Head of Family</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                      <p><strong>Name:</strong> {family.family_head_name}</p>
-                      <p><strong>Age:</strong> {family.age} years</p>
-                      <p><strong>Gender:</strong> {family.gender}</p>
-                      <p><strong>Caste/Category:</strong> {family.caste_category}</p>
-                      <p><strong>Occupation:</strong> {family.occupation}</p>
-                      <p><strong>Annual Income:</strong> ₹{family.annual_income?.toLocaleString()}</p>
-                      <p><strong>Education:</strong> {family.education_level}</p>
-                      <p><strong>Disability:</strong> {family.disability ? 'Yes' : 'No'}</p>
-                    </div>
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900">Family Profile</h2>
+                    {!schemes.length && (
+                      <button
+                        onClick={checkEligibility}
+                        disabled={loading}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-300"
+                      >
+                        {loading ? 'Checking...' : 'Check Eligibility'}
+                      </button>
+                    )}
                   </div>
                   
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-800">Family Members ({family.family_members?.length || 0})</h3>
-                    <div className="space-y-3 max-h-64 overflow-y-auto">
-                      {family.family_members?.map((member, index) => (
-                        <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                          <p className="font-medium">{member.name}</p>
-                          <p className="text-sm text-gray-600">
-                            {member.age} years, {member.gender}, {member.relationship}
-                          </p>
-                          {member.occupation && (
-                            <p className="text-sm text-gray-600">Occupation: {member.occupation}</p>
-                          )}
-                        </div>
-                      ))}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-800">Head of Family</h3>
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                        <p><strong>Name:</strong> {family.family_head_name}</p>
+                        <p><strong>Age:</strong> {family.age} years</p>
+                        <p><strong>Gender:</strong> {family.gender}</p>
+                        <p><strong>Caste/Category:</strong> {family.caste_category}</p>
+                        <p><strong>Occupation:</strong> {family.occupation}</p>
+                        <p><strong>Annual Income:</strong> ₹{family.annual_income?.toLocaleString()}</p>
+                        <p><strong>Education:</strong> {family.education_level}</p>
+                        <p><strong>Disability:</strong> {family.disability ? 'Yes' : 'No'}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-800">Family Members ({family.family_members?.length || 0})</h3>
+                      <div className="space-y-3 max-h-64 overflow-y-auto">
+                        {family.family_members?.map((member, index) => (
+                          <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                            <p className="font-medium">{member.name}</p>
+                            <p className="text-sm text-gray-600">
+                              {member.age} years, {member.gender}, {member.relationship}
+                            </p>
+                            {member.occupation && (
+                              <p className="text-sm text-gray-600">Occupation: {member.occupation}</p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
+                
+                {/* Document Upload Section */}
+                <DocumentUploadSection family={family} onDocumentUploaded={fetchFamily} />
               </div>
             )}
           </div>

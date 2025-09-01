@@ -407,7 +407,7 @@ async def get_eligible_schemes(current_user: User = Depends(get_current_user)):
     if not family:
         return {"schemes": []}
     
-    schemes = await db.scheme_applications.find({"family_id": family['id']}).to_list(length=None)
+    schemes = await db.scheme_applications.find({"family_id": family['id']}, {"_id": 0}).to_list(length=None)
     return {"schemes": schemes}
 
 @api_router.post("/apply-scheme/{scheme_name}")

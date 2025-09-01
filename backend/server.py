@@ -240,9 +240,20 @@ async def check_scheme_eligibility(family_data: Dict, scheme_name: str) -> Dict:
     
     try:
         response = await chat.send_message(user_message)
-        # Parse AI response (assuming it returns valid JSON)
+        # Parse AI response - handle markdown code blocks
         import json
-        result = json.loads(response)
+        import re
+        
+        # Remove markdown code blocks if present
+        cleaned_response = response.strip()
+        if cleaned_response.startswith('```json'):
+            cleaned_response = re.sub(r'^```json\s*', '', cleaned_response)
+            cleaned_response = re.sub(r'\s*```$', '', cleaned_response)
+        elif cleaned_response.startswith('```'):
+            cleaned_response = re.sub(r'^```\s*', '', cleaned_response)
+            cleaned_response = re.sub(r'\s*```$', '', cleaned_response)
+        
+        result = json.loads(cleaned_response)
         return result
     except Exception as e:
         logging.error(f"AI eligibility check failed: {str(e)}")

@@ -7,4 +7,4 @@ python-dotenv
 requests
 pandas
 flask
-passlib
+passlib[bcrypt]

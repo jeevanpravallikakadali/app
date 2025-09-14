@@ -8,4 +8,5 @@ requests
 pandas
 flask
 passlib[bcrypt]
+jose
 

@@ -1,8 +1,9 @@
 fastapi
 uvicorn
-flask
 gunicorn
-pandas
-requests
+motor
+pydantic
 python-dotenv
-
+requests
+pandas
+flask
